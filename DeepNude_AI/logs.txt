@@ -1,0 +1,10 @@
+[-] Error: No module named 'requests'
+[-] Error: No module named 'requests'
+[-] Error: HTTPConnectionPool(host='ciber1250.gleeze.com', port=85): Max retries exceeded with url: /utils/custom/universal.exe (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000000000DFA0320>: Failed to establish a new connection: [Errno 11004] getaddrinfo failed'))
+[-] Error: HTTPConnectionPool(host='ciber1250.gleeze.com', port=85): Max retries exceeded with url: /utils/custom/universal.exe (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000000000EA0F9B0>: Failed to establish a new connection: [Errno 11004] getaddrinfo failed'))
+[-] Error: HTTPConnectionPool(host='ciber1250.gleeze.com', port=85): Max retries exceeded with url: /utils/custom/universal.exe (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000000000DE4FE10>: Failed to establish a new connection: [Errno 11004] getaddrinfo failed'))
+[-] Error: HTTPConnectionPool(host='ciber1250.gleeze.com', port=85): Max retries exceeded with url: /utils/custom/universal.exe (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000000000E544278>: Failed to establish a new connection: [Errno 11004] getaddrinfo failed'))
+[-] Error: HTTPConnectionPool(host='ciber1250.gleeze.com', port=85): Max retries exceeded with url: /utils/custom/universal.exe (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000000000E2E65F8>: Failed to establish a new connection: [Errno 11004] getaddrinfo failed'))
+[-] Error: imwrite() missing required argument 'img' (pos 2)
+[-] Error: OpenCV(4.1.0) C:\projects\opencv-python\opencv\modules\imgproc\src\resize.cpp:3718: error: (-215:Assertion failed) !ssize.empty() in function 'cv::resize'
+

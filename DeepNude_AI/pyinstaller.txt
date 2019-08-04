@@ -1,0 +1,10 @@
+D:\Driver_D\Python\DeepNude>D:\Driver_D\Python\python3.7\python.exe D:\Driver_D\Python\PyInstaller-3.5\pyinstaller.py -w D:\Driver_D\Python\DeepNud\Ai_nude_up.py
+
+建立checkpoints放入3个lib文件
+电脑没有装Python3，故使用Python2.7来执行Ai_nude_up_cmd显示界面。
+如果安装了Python3，直接运行Ai_nude_up.py。
+原界面对分辨率小的电脑无法支持，我的无法使用，故重新设计界面。
+GUI
+1，拖入图片路径
+2，拖入图片路径并改名，拖入图片目录保存
+
