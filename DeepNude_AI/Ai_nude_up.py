@@ -9,59 +9,82 @@ from run import process
 import argparse
 import os
 import random
-
+import numpy as np
 #reload(sys)
 #sys.setdefaultencoding("utf-8")
 
 
-global image_name
-image_name=""
 
-
+PIC=[".jpg",".JPG",".PNG",".png",".JPEG",".jpeg",".bmp",".BMP",".gif",".GIF"]
 
 #*******************************************************************
 #*******************************************************************
 #***************************布局类**********************************
 #*******************************************************************
 #*******************************************************************
-class graphicsView(QGraphicsView):
+class graphicsView(QGraphicsView,QLabel):
     def __init__(self,parent=None):
         super(graphicsView,self).__init__(parent)
-
-        self.image=""
+        self._parent=parent
         self.zoomscale=1
-        
+
+    def dragEnterEvent( self, event ):
+            
+            data = event.mimeData()
+            urls = data.urls()
+            if ( urls and urls[0].scheme() == 'file' ):
+                event.acceptProposedAction()
+    def dragMoveEvent( self, event ):
+            data = event.mimeData()
+            urls = data.urls()
+            if ( urls and urls[0].scheme() == 'file' ):
+                event.acceptProposedAction()
+
+    def dropEvent( self, event ):
+            data = event.mimeData()
+            urls = data.urls()
+            if ( urls and urls[0].scheme() == 'file' ):
+                filepath = str(urls[0].path())[1:]
+                temp=0
+                for pic in PIC:
+                    if pic == os.path.splitext(filepath)[1]:
+                        temp=1
+                if temp==1 :
+                    self._parent.pic_address.setText(filepath)
+                    print(filepath)
+                    self.image=QPixmap(filepath)
+                    self.graphicsView= QGraphicsScene()            
+                    self.item = QGraphicsPixmapItem(self.image)
+                    
+                    self.item.setFlag(QGraphicsItem.ItemIsMovable)  # 使图元可以拖动，非常关键！！！！！
+                    #self.item.setScale(self.zoomscale)
+                    self.graphicsView.addItem(self.item)
+                    #self.setAlignment(Qt.AlignLeft and Qt.AlignTop)
+                    self.setAlignment(Qt.AlignLeft)
+                    if self.image.width()!=500:
+                        self.item.setScale(500.0/self.image.width()) 
+                    self.setScene(self.graphicsView)
+                else:
+                    QMessageBox.information(self,u"提示", u"不是图片")
+
 
     def wheelEvent(self, event):
-        
-        global image_name   
-        if image_name!="":
-            self=image_name
             angle=event.angleDelta() / 8                                         
             angleX=angle.x()  
             angleY=angle.y()  
             #print(angleX,angleY)
             if angleY >= 0:
                 self.zoomscale=self.zoomscale+0.1
-                self.item.setScale(self.zoomscale)
-                self.setAlignment(Qt.AlignCenter and Qt.AlignTop)
+                self._parent._tree.item.setScale(self.zoomscale)
+                #self.setAlignment(Qt.AlignCenter and Qt.AlignTop)
                     
            
             elif angleY <=  0:
                 self.zoomscale=self.zoomscale-0.1
-                self.item.setScale(self.zoomscale)
-                self.setAlignment(Qt.AlignCenter and Qt.AlignTop)
-        
-                
-                    
-                
-           
+                self._parent._tree.item.setScale(self.zoomscale)
+                #self.setAlignment(Qt.AlignCenter and Qt.AlignTop)
 
-
-        
-  
-                
-           
+       
                 
 #*******************************************************************
 #*******************************************************************
@@ -91,6 +114,7 @@ class MyLineEdit(QLineEdit):
             urls = data.urls()
             if ( urls and urls[0].scheme() == 'file' ):
                 filepath = str(urls[0].path())[1:]
+                #filepath=filepath.decode("utf-8")
                 self.setText(filepath)
 
 #*******************************************************************
@@ -155,7 +179,6 @@ class Nude_transform_gui(QWidget):
 
 
         laty_4=QHBoxLayout()
-        #print(dir(laty_4))
         laty_4.addStretch(10)
         laty_4.addSpacing(10)
         laty_4.addWidget(self.time_pos,1)
@@ -182,9 +205,8 @@ class Nude_transform_gui(QWidget):
         pic_button.clicked.connect(self.get_pic_address)
         save_button.clicked.connect(self.get_save_address)
         start_work.clicked.connect(self.transform_nude)
-
-
-
+   
+   
 
 
     def get_pic_address(self):
@@ -194,19 +216,17 @@ class Nude_transform_gui(QWidget):
                 return
             name=pic_address
             if os.path.exists(name):
+                self._tree.zoomscale=1
                 self._tree.image=QPixmap(name)
-                
-                    
                 self._tree.graphicsView= QGraphicsScene()            
-                self._tree.item = QGraphicsPixmapItem(self._tree.image)               
+                self._tree.item = QGraphicsPixmapItem(self._tree.image)
+                self._tree.item.setFlag(QGraphicsItem.ItemIsMovable)  # 使图元可以拖动，非常关键！！！！！
                 self._tree.graphicsView.addItem(self._tree.item)
-                self._tree.setAlignment(Qt.AlignCenter and Qt.AlignTop)
+                #self._tree.setAlignment(Qt.AlignLeft and Qt.AlignTop)
+                self._tree.setAlignment(Qt.AlignLeft)
                 if self._tree.image.width()!=500:
-                    self._tree.item.setScale(500/self._tree.image.width()) 
+                    self._tree.item.setScale(500.0/self._tree.image.width()) 
                 self._tree.setScene(self._tree.graphicsView)
-                global image_name
-                image_name=self._tree
-                #print(image_name)
                 
     def get_save_address(self):
         filename = QFileDialog.getExistingDirectory()
@@ -230,27 +250,41 @@ class Nude_transform_gui(QWidget):
     
     def _process(self,i_image, o_image, use_gpu):
         try:
-            dress = cv2.imread(i_image)
+            try:
+                dress=cv2.imdecode(np.fromfile(i_image,dtype=np.uint8),-1)
+            except:
+                dress = cv2.imread(i_image)
             h = dress.shape[0]
             w = dress.shape[1]
             dress = cv2.resize(dress, (512,512), interpolation=cv2.INTER_CUBIC)
             watermark = process(dress, use_gpu)
             watermark =  cv2.resize(watermark, (w,h), interpolation=cv2.INTER_CUBIC)
-            cv2.imwrite(o_image, watermark)
+            try:
+                cv2.imencode('.png', watermark)[1].tofile(o_image)
+            except:
+                cv2.imwrite(o_image , watermark)
             print("[*] Image saved as: %s" % o_image)
             self.pbar.setValue(100)
             name=o_image
             if os.path.exists(name):
                 self._tree.image=QPixmap(name)
                 self._tree.graphicsView= QGraphicsScene()            
-                self._tree.item = QGraphicsPixmapItem(self._tree.image)               
+                self._tree.item = QGraphicsPixmapItem(self._tree.image)
+                self._tree.item.setFlag(QGraphicsItem.ItemIsMovable)  # 使图元可以拖动，非常关键！！！！！
                 self._tree.graphicsView.addItem(self._tree.item)
-                self._tree.setAlignment(Qt.AlignCenter and Qt.AlignTop)
+                #self._tree.setAlignment(Qt.AlignLeft and Qt.AlignTop)
+                self._tree.setAlignment(Qt.AlignLeft)
+                
                 if self._tree.image.width()!=500:
-                    self._tree.item.setScale(500/self._tree.image.width()) 
+                    try:
+                        self._tree.item.setScale(500.0/self._tree.image.width())
+                    except:
+                        pass
                 self._tree.setScene(self._tree.graphicsView)
-                global image_name
-                image_name=self._tree
+                self.box = QMessageBox(QMessageBox.Information, "提示", "转换成功！")
+                self.box.addButton(u"确定", QMessageBox.YesRole).animateClick(1*1000)
+                self.box.exec_()
+
         except Exception as e:
             print(e)
 	
